@@ -1,0 +1,153 @@
+/**
+ * Yokitabi カスタムスライダー CSS
+ */
+
+.yokitabi-slider-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.yokitabi-slider {
+  width: 100%;
+  height: 100vh;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.yokitabi-slider.swiper-initialized {
+  opacity: 1;
+}
+
+/* 遅延開始時の1枚目表示用スタイル */
+.yokitabi-slider.delay-preview {
+  opacity: 1 !important;
+  height: 100vh;
+}
+
+.yokitabi-slider.delay-preview .swiper-wrapper {
+  height: 100%;
+  transform: none !important;
+}
+
+.yokitabi-slider.delay-preview .swiper-slide {
+  display: none !important;
+}
+
+.yokitabi-slider.delay-preview .swiper-slide:first-child {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.yokitabi-slider .swiper-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.slide-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.slide-background {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.slide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.slide-content {
+  position: absolute;
+  z-index: 2;
+  text-align: right;
+  color: white;
+  max-width: 100%;
+  padding: 20px;
+  bottom: 0;
+  right: 0;
+}
+
+.facility-name {
+  animation: slideInUp 1s ease-out 0.5s both;
+}
+
+.facility-title {
+  font-size: 1rem !important;
+  font-weight: bold;
+  margin: unset !important;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.facility-subtitle {
+  font-size: 1rem !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ナビゲーションボタン - 非表示 */
+.yokitabi-slider .swiper-button-next,
+.yokitabi-slider .swiper-button-prev {
+  display: none;
+}
+
+/* ページネーション */
+.yokitabi-slider .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+  width: 12px;
+  height: 12px;
+  margin: 0 6px;
+}
+
+.yokitabi-slider .swiper-pagination-bullet-active {
+  background: white;
+}
+
+/* アニメーション */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* スマホ対応 */
+@media (max-width: 768px) {
+  .facility-title {
+    font-size: 2rem;
+  }
+
+  .facility-subtitle {
+    font-size: 1rem;
+  }
+
+  .slide-content {
+    padding-bottom:40px;
+  }
+}
