@@ -356,6 +356,13 @@ class YokitabiCustomSlider
         $this->delete_slide();
       }
     }
+
+    // スライダー複製
+    if (isset($_GET['action']) && $_GET['action'] === 'duplicate_slider' && isset($_GET['slider_id'])) {
+      if (isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'duplicate_slider_' . intval($_GET['slider_id']))) {
+        $this->duplicate_slider();
+      }
+    }
   }
 
   /**
@@ -529,6 +536,77 @@ class YokitabiCustomSlider
     $wpdb->delete($slider_table, array('id' => $slider_id), array('%d'));
 
     wp_redirect(admin_url('admin.php?page=yokitabi-slider-manager&message=deleted'));
+    exit;
+  }
+
+  /**
+   * スライダー複製
+   */
+  private function duplicate_slider()
+  {
+    global $wpdb;
+
+    $original_slider_id = intval($_GET['slider_id']);
+
+    $slider_table = $wpdb->prefix . 'yokitabi_sliders';
+    $slide_table = $wpdb->prefix . 'yokitabi_slides';
+
+    // 元スライダー存在確認
+    $original_slider = $wpdb->get_row($wpdb->prepare(
+      "SELECT * FROM $slider_table WHERE id = %d AND is_active = 1",
+      $original_slider_id
+    ));
+
+    if (!$original_slider) {
+      wp_redirect(admin_url('admin.php?page=yokitabi-slider-manager&message=error'));
+      exit;
+    }
+
+    // スライダー複製
+    $new_name = $original_slider->name . ' (複製)';
+
+    $result = $wpdb->insert(
+      $slider_table,
+      array(
+        'name' => $new_name,
+        'description' => $original_slider->description,
+        'settings' => $original_slider->settings,
+        'is_active' => 1
+      ),
+      array('%s', '%s', '%s', '%d')
+    );
+
+    if (!$result) {
+      wp_redirect(admin_url('admin.php?page=yokitabi-slider-manager&message=error'));
+      exit;
+    }
+
+    $new_slider_id = $wpdb->insert_id;
+
+    // 関連スライド複製
+    $original_slides = $wpdb->get_results($wpdb->prepare(
+      "SELECT * FROM $slide_table WHERE slider_id = %d AND is_active = 1 ORDER BY sort_order ASC",
+      $original_slider_id
+    ));
+
+    foreach ($original_slides as $slide) {
+      $wpdb->insert(
+        $slide_table,
+        array(
+          'slider_id' => $new_slider_id,
+          'image_url' => $slide->image_url,
+          'title' => $slide->title,
+          'subtitle' => $slide->subtitle,
+          'link_url' => $slide->link_url,
+          'sort_order' => $slide->sort_order,
+          'is_active' => 1
+        ),
+        array('%d', '%s', '%s', '%s', '%s', '%d', '%d')
+      );
+    }
+
+    // 成功リダイレクト
+    wp_redirect(admin_url('admin.php?page=yokitabi-slider-manager&message=duplicated'));
     exit;
   }
 

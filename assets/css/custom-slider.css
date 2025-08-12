@@ -116,8 +116,8 @@
 .yokitabi-slider .swiper-pagination-bullet {
   background: rgba(255, 255, 255, 0.5);
   opacity: 1;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   margin: 0 6px;
 }
 

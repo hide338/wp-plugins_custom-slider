@@ -13,6 +13,12 @@ if (isset($_GET['message'])) {
     case 'deleted':
       $message = 'スライダーを削除しました。';
       break;
+    case 'duplicated':
+      $message = 'スライダーを複製しました。';
+      break;
+    case 'error':
+      $message = 'エラーが発生しました。再度お試しください。';
+      break;
   }
 }
 
@@ -120,6 +126,8 @@ $sliders = $wpdb->get_results("SELECT * FROM $table_name WHERE is_active = 1 ORD
               <td><?php echo date('Y-m-d H:i', strtotime($slider->created_at)); ?></td>
               <td>
                 <a href="<?php echo admin_url('admin.php?page=yokitabi-slider-edit&slider_id=' . $slider->id); ?>" class="button">編集</a>
+                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=yokitabi-slider-manager&action=duplicate_slider&slider_id=' . $slider->id), 'duplicate_slider_' . $slider->id); ?>" 
+                   class="button">複製</a>
                 <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=yokitabi-slider-manager&action=delete_slider&slider_id=' . $slider->id), 'delete_slider_' . $slider->id); ?>"
                   class="button button-link-delete"
                   onclick="return confirm('このスライダーを削除しますか？関連するスライドも全て削除されます。')">削除</a>
