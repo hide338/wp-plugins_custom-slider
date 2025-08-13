@@ -1,40 +1,40 @@
 /**
- * Yokitabi カスタムスライダー CSS
+ * Advanced Custom Slider CSS
  */
 
-.yokitabi-slider-wrapper {
+.custom-slider-wrapper {
   position: relative;
   width: 100%;
   overflow: hidden;
 }
 
-.yokitabi-slider {
+.custom-slider {
   width: 100%;
   height: 100vh;
   opacity: 0;
   transition: opacity 0.5s ease;
 }
 
-.yokitabi-slider.swiper-initialized {
+.custom-slider.swiper-initialized {
   opacity: 1;
 }
 
 /* 遅延開始時の1枚目表示用スタイル */
-.yokitabi-slider.delay-preview {
+.custom-slider.delay-preview {
   opacity: 1 !important;
   height: 100vh;
 }
 
-.yokitabi-slider.delay-preview .swiper-wrapper {
+.custom-slider.delay-preview .swiper-wrapper {
   height: 100%;
   transform: none !important;
 }
 
-.yokitabi-slider.delay-preview .swiper-slide {
+.custom-slider.delay-preview .swiper-slide {
   display: none !important;
 }
 
-.yokitabi-slider.delay-preview .swiper-slide:first-child {
+.custom-slider.delay-preview .swiper-slide:first-child {
   display: flex !important;
   align-items: center;
   justify-content: center;
@@ -43,7 +43,7 @@
   width: 100%;
 }
 
-.yokitabi-slider .swiper-slide {
+.custom-slider .swiper-slide {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -107,13 +107,13 @@
 }
 
 /* ナビゲーションボタン - 非表示 */
-.yokitabi-slider .swiper-button-next,
-.yokitabi-slider .swiper-button-prev {
+.custom-slider .swiper-button-next,
+.custom-slider .swiper-button-prev {
   display: none;
 }
 
 /* ページネーション */
-.yokitabi-slider .swiper-pagination-bullet {
+.custom-slider .swiper-pagination-bullet {
   background: rgba(255, 255, 255, 0.5);
   opacity: 1;
   width: 10px;
@@ -121,7 +121,7 @@
   margin: 0 6px;
 }
 
-.yokitabi-slider .swiper-pagination-bullet-active {
+.custom-slider .swiper-pagination-bullet-active {
   background: white;
 }
 

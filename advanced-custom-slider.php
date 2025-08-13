@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Plugin Name: Yokitabi カスタムスライダー
- * Plugin URI: https://yokitabi.com
+ * Plugin Name: Advanced Custom Slider
+ * Plugin URI: https://github.com/custom-slider
  * Description: ローディング画面完了後に開始するカスタムスライダーシステム
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Toshihide Nakahara
- * Text Domain: yokitabi-custom-slider
+ * Text Domain: advanced-custom-slider
  * Domain Path: /languages
  */
 
@@ -16,11 +16,11 @@ if (!defined('ABSPATH')) {
 }
 
 // プラグインの定数定義
-define('YOKITABI_SLIDER_VERSION', '1.0.0');
-define('YOKITABI_SLIDER_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('YOKITABI_SLIDER_PLUGIN_PATH', plugin_dir_path(__FILE__));
+define('CUSTOM_SLIDER_VERSION', '1.1.0');
+define('CUSTOM_SLIDER_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('CUSTOM_SLIDER_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
-class YokitabiCustomSlider
+class AdvancedCustomSlider
 {
   public function __construct()
   {
@@ -34,6 +34,9 @@ class YokitabiCustomSlider
     add_action('wp_ajax_update_slide_order', array($this, 'ajax_update_slide_order'));
 
     // ショートコード登録
+    add_shortcode('custom_slider', array($this, 'slider_shortcode'));
+
+    // 後方互換性のための旧ショートコード
     add_shortcode('yokitabi_slider', array($this, 'slider_shortcode'));
 
     // プラグイン有効化時のフック
@@ -44,12 +47,13 @@ class YokitabiCustomSlider
   public function init()
   {
     // 言語ファイルの読み込み
-    load_plugin_textdomain('yokitabi-custom-slider', false, dirname(plugin_basename(__FILE__)) . '/languages');
+    load_plugin_textdomain('advanced-custom-slider', false, dirname(plugin_basename(__FILE__)) . '/languages');
   }
 
   public function activate()
   {
     $this->create_database_tables();
+    $this->migrate_old_tables();
     flush_rewrite_rules();
   }
 
@@ -68,7 +72,7 @@ class YokitabiCustomSlider
     $charset_collate = $wpdb->get_charset_collate();
 
     // スライダーテーブル
-    $slider_table = $wpdb->prefix . 'yokitabi_sliders';
+    $slider_table = $wpdb->prefix . 'custom_sliders';
     $slider_sql = "CREATE TABLE $slider_table (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             name varchar(255) NOT NULL,
@@ -81,7 +85,7 @@ class YokitabiCustomSlider
         ) $charset_collate;";
 
     // スライドテーブル
-    $slide_table = $wpdb->prefix . 'yokitabi_slides';
+    $slide_table = $wpdb->prefix . 'custom_slides';
     $slide_sql = "CREATE TABLE $slide_table (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             slider_id mediumint(9) NOT NULL,
@@ -100,6 +104,33 @@ class YokitabiCustomSlider
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($slider_sql);
     dbDelta($slide_sql);
+  }
+
+  /**
+   * 旧テーブルからのデータ移行
+   */
+  private function migrate_old_tables()
+  {
+    global $wpdb;
+
+    $old_slider_table = $wpdb->prefix . 'yokitabi_sliders';
+    $old_slide_table = $wpdb->prefix . 'yokitabi_slides';
+    $new_slider_table = $wpdb->prefix . 'custom_sliders';
+    $new_slide_table = $wpdb->prefix . 'custom_slides';
+
+    // 旧テーブルが存在し、新テーブルが空の場合のみ移行
+    $old_exists = $wpdb->get_var("SHOW TABLES LIKE '$old_slider_table'") === $old_slider_table;
+    $new_count = $wpdb->get_var("SELECT COUNT(*) FROM $new_slider_table");
+
+    if ($old_exists && $new_count == 0) {
+      // スライダーデータ移行
+      $wpdb->query("INSERT INTO $new_slider_table (id, name, description, settings, is_active, created_at, updated_at) 
+                    SELECT id, name, description, settings, is_active, created_at, updated_at FROM $old_slider_table");
+
+      // スライドデータ移行
+      $wpdb->query("INSERT INTO $new_slide_table (id, slider_id, image_url, title, subtitle, link_url, sort_order, is_active, created_at, updated_at) 
+                    SELECT id, slider_id, image_url, title, subtitle, link_url, sort_order, is_active, created_at, updated_at FROM $old_slide_table");
+    }
   }
 
   /**
@@ -124,19 +155,19 @@ class YokitabiCustomSlider
 
     // カスタムスライダーJS
     wp_enqueue_script(
-      'yokitabi-custom-slider',
-      YOKITABI_SLIDER_PLUGIN_URL . 'assets/js/custom-slider.js',
+      'advanced-custom-slider',
+      CUSTOM_SLIDER_PLUGIN_URL . 'assets/js/custom-slider.js',
       array('jquery', 'swiper-js'),
-      YOKITABI_SLIDER_VERSION,
+      CUSTOM_SLIDER_VERSION,
       true
     );
 
     // カスタムスライダーCSS
     wp_enqueue_style(
-      'yokitabi-custom-slider-css',
-      YOKITABI_SLIDER_PLUGIN_URL . 'assets/css/custom-slider.css',
+      'advanced-custom-slider-css',
+      CUSTOM_SLIDER_PLUGIN_URL . 'assets/css/custom-slider.css',
       array('swiper-css'),
-      YOKITABI_SLIDER_VERSION
+      CUSTOM_SLIDER_VERSION
     );
   }
 
@@ -145,7 +176,7 @@ class YokitabiCustomSlider
    */
   public function admin_enqueue_scripts($hook)
   {
-    if (strpos($hook, 'yokitabi-slider') === false) {
+    if (strpos($hook, 'custom-slider') === false) {
       return;
     }
 
@@ -153,24 +184,24 @@ class YokitabiCustomSlider
     wp_enqueue_script('jquery-ui-sortable');
 
     wp_enqueue_script(
-      'yokitabi-slider-admin',
-      YOKITABI_SLIDER_PLUGIN_URL . 'assets/js/admin.js',
+      'custom-slider-admin',
+      CUSTOM_SLIDER_PLUGIN_URL . 'assets/js/admin.js',
       array('jquery', 'jquery-ui-sortable'),
-      YOKITABI_SLIDER_VERSION,
+      CUSTOM_SLIDER_VERSION,
       true
     );
 
     wp_enqueue_style(
-      'yokitabi-slider-admin-css',
-      YOKITABI_SLIDER_PLUGIN_URL . 'assets/css/admin.css',
+      'custom-slider-admin-css',
+      CUSTOM_SLIDER_PLUGIN_URL . 'assets/css/admin.css',
       array(),
-      YOKITABI_SLIDER_VERSION
+      CUSTOM_SLIDER_VERSION
     );
 
     // 管理画面用のajaxurl変数を追加
-    wp_localize_script('yokitabi-slider-admin', 'yokitabi_admin_ajax', array(
+    wp_localize_script('custom-slider-admin', 'custom_admin_ajax', array(
       'ajaxurl' => admin_url('admin-ajax.php'),
-      'nonce' => wp_create_nonce('yokitabi_admin_nonce')
+      'nonce' => wp_create_nonce('custom_admin_nonce')
     ));
   }
 
@@ -180,21 +211,21 @@ class YokitabiCustomSlider
   public function add_admin_menu()
   {
     add_menu_page(
-      'Yokitabi スライダー',
-      'Yokitabi スライダー',
+      'カスタムスライダー',
+      'カスタムスライダー',
       'manage_options',
-      'yokitabi-slider-manager',
+      'custom-slider-manager',
       array($this, 'admin_page_list'),
       'dashicons-images-alt2',
       30
     );
 
     add_submenu_page(
-      'yokitabi-slider-manager',
+      'custom-slider-manager',
       'スライダー編集',
       'スライダー編集',
       'manage_options',
-      'yokitabi-slider-edit',
+      'custom-slider-edit',
       array($this, 'admin_page_edit')
     );
   }
@@ -217,7 +248,7 @@ class YokitabiCustomSlider
       'show_pagination' => true,
       'delay_start' => true,
       'delay_seconds' => 1.0
-    ), $atts, 'yokitabi_slider');
+    ), $atts, 'custom_slider');
 
     if (!empty($atts['id'])) {
       return $this->render_database_slider($atts['id']);
@@ -233,8 +264,8 @@ class YokitabiCustomSlider
   {
     global $wpdb;
 
-    $slider_table = $wpdb->prefix . 'yokitabi_sliders';
-    $slide_table = $wpdb->prefix . 'yokitabi_slides';
+    $slider_table = $wpdb->prefix . 'custom_sliders';
+    $slide_table = $wpdb->prefix . 'custom_slides';
 
     $slider = $wpdb->get_row($wpdb->prepare(
       "SELECT * FROM $slider_table WHERE id = %d AND is_active = 1",
@@ -268,10 +299,10 @@ class YokitabiCustomSlider
     $delay_start = $settings['delay_start'] ?? true;
     $delay_seconds = $settings['delay_seconds'] ?? 1.0;
 
-    $slider_id_attr = 'yokitabi-slider-' . $slider_id;
+    $slider_id_attr = 'custom-slider-' . $slider_id;
 
     ob_start();
-    include YOKITABI_SLIDER_PLUGIN_PATH . 'templates/slider.php';
+    include CUSTOM_SLIDER_PLUGIN_PATH . 'templates/slider.php';
     return ob_get_clean();
   }
 
@@ -307,10 +338,10 @@ class YokitabiCustomSlider
     $delay_start = filter_var($atts['delay_start'], FILTER_VALIDATE_BOOLEAN);
     $delay_seconds = floatval($atts['delay_seconds']);
 
-    $slider_id_attr = 'yokitabi-slider-legacy-' . uniqid();
+    $slider_id_attr = 'custom-slider-legacy-' . uniqid();
 
     ob_start();
-    include YOKITABI_SLIDER_PLUGIN_PATH . 'templates/slider.php';
+    include CUSTOM_SLIDER_PLUGIN_PATH . 'templates/slider.php';
     return ob_get_clean();
   }
 
@@ -386,7 +417,7 @@ class YokitabiCustomSlider
       'delay_seconds' => floatval($_POST['delay_seconds'])
     );
 
-    $table_name = $wpdb->prefix . 'yokitabi_sliders';
+    $table_name = $wpdb->prefix . 'custom_sliders';
 
     $result = $wpdb->insert(
       $table_name,
@@ -401,7 +432,7 @@ class YokitabiCustomSlider
 
     if ($result) {
       $slider_id = $wpdb->insert_id;
-      wp_redirect(admin_url('admin.php?page=yokitabi-slider-edit&slider_id=' . $slider_id . '&message=created'));
+      wp_redirect(admin_url('admin.php?page=custom-slider-edit&slider_id=' . $slider_id . '&message=created'));
       exit;
     }
   }
@@ -428,7 +459,7 @@ class YokitabiCustomSlider
       'delay_seconds' => floatval($_POST['delay_seconds'])
     );
 
-    $table_name = $wpdb->prefix . 'yokitabi_sliders';
+    $table_name = $wpdb->prefix . 'custom_sliders';
 
     $wpdb->update(
       $table_name,
@@ -442,7 +473,7 @@ class YokitabiCustomSlider
       array('%d')
     );
 
-    wp_redirect(admin_url('admin.php?page=yokitabi-slider-edit&slider_id=' . $slider_id . '&message=updated'));
+    wp_redirect(admin_url('admin.php?page=custom-slider-edit&slider_id=' . $slider_id . '&message=updated'));
     exit;
   }
 
@@ -460,7 +491,7 @@ class YokitabiCustomSlider
     $link_url = esc_url_raw($_POST['slide_link_url']);
 
     // 最大のsort_orderを取得
-    $table_name = $wpdb->prefix . 'yokitabi_slides';
+    $table_name = $wpdb->prefix . 'custom_slides';
     $max_order = $wpdb->get_var($wpdb->prepare(
       "SELECT MAX(sort_order) FROM $table_name WHERE slider_id = %d",
       $slider_id
@@ -480,7 +511,7 @@ class YokitabiCustomSlider
       array('%d', '%s', '%s', '%s', '%s', '%d', '%d')
     );
 
-    wp_redirect(admin_url('admin.php?page=yokitabi-slider-edit&slider_id=' . $slider_id . '&message=slide_added'));
+    wp_redirect(admin_url('admin.php?page=custom-slider-edit&slider_id=' . $slider_id . '&message=slide_added'));
     exit;
   }
 
@@ -498,7 +529,7 @@ class YokitabiCustomSlider
     $subtitle = sanitize_text_field($_POST['slide_subtitle']);
     $link_url = esc_url_raw($_POST['slide_link_url']);
 
-    $table_name = $wpdb->prefix . 'yokitabi_slides';
+    $table_name = $wpdb->prefix . 'custom_slides';
 
     $wpdb->update(
       $table_name,
@@ -513,7 +544,7 @@ class YokitabiCustomSlider
       array('%d')
     );
 
-    wp_redirect(admin_url('admin.php?page=yokitabi-slider-edit&slider_id=' . $slider_id . '&message=slide_updated'));
+    wp_redirect(admin_url('admin.php?page=custom-slider-edit&slider_id=' . $slider_id . '&message=slide_updated'));
     exit;
   }
 
@@ -526,8 +557,8 @@ class YokitabiCustomSlider
 
     $slider_id = intval($_GET['slider_id']);
 
-    $slider_table = $wpdb->prefix . 'yokitabi_sliders';
-    $slide_table = $wpdb->prefix . 'yokitabi_slides';
+    $slider_table = $wpdb->prefix . 'custom_sliders';
+    $slide_table = $wpdb->prefix . 'custom_slides';
 
     // スライドを削除
     $wpdb->delete($slide_table, array('slider_id' => $slider_id), array('%d'));
@@ -535,7 +566,7 @@ class YokitabiCustomSlider
     // スライダーを削除
     $wpdb->delete($slider_table, array('id' => $slider_id), array('%d'));
 
-    wp_redirect(admin_url('admin.php?page=yokitabi-slider-manager&message=deleted'));
+    wp_redirect(admin_url('admin.php?page=custom-slider-manager&message=deleted'));
     exit;
   }
 
@@ -548,8 +579,8 @@ class YokitabiCustomSlider
 
     $original_slider_id = intval($_GET['slider_id']);
 
-    $slider_table = $wpdb->prefix . 'yokitabi_sliders';
-    $slide_table = $wpdb->prefix . 'yokitabi_slides';
+    $slider_table = $wpdb->prefix . 'custom_sliders';
+    $slide_table = $wpdb->prefix . 'custom_slides';
 
     // 元スライダー存在確認
     $original_slider = $wpdb->get_row($wpdb->prepare(
@@ -558,7 +589,7 @@ class YokitabiCustomSlider
     ));
 
     if (!$original_slider) {
-      wp_redirect(admin_url('admin.php?page=yokitabi-slider-manager&message=error'));
+      wp_redirect(admin_url('admin.php?page=custom-slider-manager&message=error'));
       exit;
     }
 
@@ -577,7 +608,7 @@ class YokitabiCustomSlider
     );
 
     if (!$result) {
-      wp_redirect(admin_url('admin.php?page=yokitabi-slider-manager&message=error'));
+      wp_redirect(admin_url('admin.php?page=custom-slider-manager&message=error'));
       exit;
     }
 
@@ -606,7 +637,7 @@ class YokitabiCustomSlider
     }
 
     // 成功リダイレクト
-    wp_redirect(admin_url('admin.php?page=yokitabi-slider-manager&message=duplicated'));
+    wp_redirect(admin_url('admin.php?page=custom-slider-manager&message=duplicated'));
     exit;
   }
 
@@ -620,11 +651,11 @@ class YokitabiCustomSlider
     $slide_id = intval($_GET['slide_id']);
     $slider_id = intval($_GET['slider_id']);
 
-    $table_name = $wpdb->prefix . 'yokitabi_slides';
+    $table_name = $wpdb->prefix . 'custom_slides';
 
     $wpdb->delete($table_name, array('id' => $slide_id), array('%d'));
 
-    wp_redirect(admin_url('admin.php?page=yokitabi-slider-edit&slider_id=' . $slider_id . '&message=slide_deleted'));
+    wp_redirect(admin_url('admin.php?page=custom-slider-edit&slider_id=' . $slider_id . '&message=slide_deleted'));
     exit;
   }
 
@@ -639,12 +670,12 @@ class YokitabiCustomSlider
     }
 
     // nonce検証
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'yokitabi_admin_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'custom_admin_nonce')) {
       wp_die(__('セキュリティチェックに失敗しました。'));
     }
 
     global $wpdb;
-    $table_name = $wpdb->prefix . 'yokitabi_slides';
+    $table_name = $wpdb->prefix . 'custom_slides';
 
     $slides = $_POST['slides'];
     if (!is_array($slides)) {
@@ -672,7 +703,7 @@ class YokitabiCustomSlider
    */
   public function admin_page_list()
   {
-    include YOKITABI_SLIDER_PLUGIN_PATH . 'templates/admin-list.php';
+    include CUSTOM_SLIDER_PLUGIN_PATH . 'templates/admin-list.php';
   }
 
   /**
@@ -680,9 +711,9 @@ class YokitabiCustomSlider
    */
   public function admin_page_edit()
   {
-    include YOKITABI_SLIDER_PLUGIN_PATH . 'templates/admin-edit.php';
+    include CUSTOM_SLIDER_PLUGIN_PATH . 'templates/admin-edit.php';
   }
 }
 
 // プラグイン初期化
-new YokitabiCustomSlider();
+new AdvancedCustomSlider();

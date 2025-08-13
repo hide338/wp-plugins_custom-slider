@@ -1,5 +1,5 @@
-<div class="yokitabi-slider-wrapper" data-delay-start="<?php echo $delay_start ? 'true' : 'false'; ?>" data-delay-seconds="<?php echo esc_attr($delay_seconds); ?>">
-  <div id="<?php echo esc_attr($slider_id_attr); ?>" class="yokitabi-slider swiper"
+<div class="custom-slider-wrapper" data-delay-start="<?php echo $delay_start ? 'true' : 'false'; ?>" data-delay-seconds="<?php echo esc_attr($delay_seconds); ?>">
+  <div id="<?php echo esc_attr($slider_id_attr); ?>" class="custom-slider swiper"
     data-autoplay="<?php echo esc_attr($autoplay); ?>"
     data-effect="<?php echo esc_attr($effect); ?>"
     data-speed="<?php echo esc_attr($speed); ?>"
