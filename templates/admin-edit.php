@@ -11,8 +11,8 @@ if (!$slider_id) {
   return;
 }
 
-$slider_table = $wpdb->prefix . 'yokitabi_sliders';
-$slide_table = $wpdb->prefix . 'yokitabi_slides';
+$slider_table = $wpdb->prefix . 'custom_sliders';
+$slide_table = $wpdb->prefix . 'custom_slides';
 
 $slider = $wpdb->get_row($wpdb->prepare(
   "SELECT * FROM $slider_table WHERE id = %d",
@@ -67,12 +67,12 @@ $slides = $wpdb->get_results($wpdb->prepare(
   <?php endif; ?>
 
   <div style="margin: 20px 0;">
-    <a href="<?php echo admin_url('admin.php?page=yokitabi-slider-manager'); ?>" class="button">← スライダー一覧に戻る</a>
-    <span style="margin: 0 20px;">ショートコード: <code>[yokitabi_slider id="<?php echo $slider_id; ?>"]</code></span>
+    <a href="<?php echo admin_url('admin.php?page=custom-slider-manager'); ?>" class="button">← スライダー一覧に戻る</a>
+    <span style="margin: 0 20px;">ショートコード: <code>[custom_slider id="<?php echo $slider_id; ?>"]</code></span>
   </div>
 
   <!-- スライダー設定 -->
-  <div class="yokitabi-admin-card">
+  <div class="custom-admin-card">
     <h2>スライダー設定</h2>
     <form method="post">
       <?php wp_nonce_field('update_slider'); ?>
@@ -127,7 +127,7 @@ $slides = $wpdb->get_results($wpdb->prepare(
   </div>
 
   <!-- 新しいスライドを追加 -->
-  <div class="yokitabi-admin-card">
+  <div class="custom-admin-card">
     <h2>新しいスライドを追加</h2>
     <form method="post">
       <?php wp_nonce_field('add_slide'); ?>
@@ -163,7 +163,7 @@ $slides = $wpdb->get_results($wpdb->prepare(
   </div>
 
   <!-- スライド一覧 -->
-  <div class="yokitabi-admin-card">
+  <div class="custom-admin-card">
     <h2>スライド一覧 (<?php echo count($slides); ?>枚)</h2>
 
     <?php if (empty($slides)): ?>
@@ -205,7 +205,7 @@ $slides = $wpdb->get_results($wpdb->prepare(
 
                 <p class="submit">
                   <input type="submit" name="update_slide" class="button-primary" value="更新">
-                  <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=yokitabi-slider-edit&slider_id=' . $slider_id . '&action=delete_slide&slide_id=' . $slide->id), 'delete_slide_' . $slide->id); ?>"
+                  <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=custom-slider-edit&slider_id=' . $slider_id . '&action=delete_slide&slide_id=' . $slide->id), 'delete_slide_' . $slide->id); ?>"
                     class="button"
                     onclick="return confirm('このスライドを削除しますか？')">削除</a>
                 </p>

@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
 }
 
 global $wpdb;
-$table_name = $wpdb->prefix . 'yokitabi_sliders';
+$table_name = $wpdb->prefix . 'custom_sliders';
 
 // メッセージ表示
 $message = '';
@@ -27,7 +27,7 @@ $sliders = $wpdb->get_results("SELECT * FROM $table_name WHERE is_active = 1 ORD
 ?>
 
 <div class="wrap">
-  <h1>Yokitabi スライダー管理</h1>
+  <h1>カスタムスライダー管理</h1>
 
   <?php if ($message): ?>
     <div class="notice notice-success is-dismissible">
@@ -36,7 +36,7 @@ $sliders = $wpdb->get_results("SELECT * FROM $table_name WHERE is_active = 1 ORD
   <?php endif; ?>
 
   <!-- 新規スライダー作成フォーム -->
-  <div class="yokitabi-admin-card">
+  <div class="custom-admin-card">
     <h2>新規スライダー作成</h2>
     <form method="post" style="max-width: 600px;">
       <?php wp_nonce_field('create_slider'); ?>
@@ -90,7 +90,7 @@ $sliders = $wpdb->get_results("SELECT * FROM $table_name WHERE is_active = 1 ORD
   </div>
 
   <!-- スライダー一覧 -->
-  <div class="yokitabi-admin-card">
+  <div class="custom-admin-card">
     <h2>作成済みスライダー (<?php echo count($sliders); ?>個)</h2>
 
     <?php if (empty($sliders)): ?>
@@ -113,22 +113,22 @@ $sliders = $wpdb->get_results("SELECT * FROM $table_name WHERE is_active = 1 ORD
               <td><?php echo $slider->id; ?></td>
               <td>
                 <strong>
-                  <a href="<?php echo admin_url('admin.php?page=yokitabi-slider-edit&slider_id=' . $slider->id); ?>">
+                  <a href="<?php echo admin_url('admin.php?page=custom-slider-edit&slider_id=' . $slider->id); ?>">
                     <?php echo esc_html($slider->name); ?>
                   </a>
                 </strong>
               </td>
               <td><?php echo esc_html($slider->description); ?></td>
               <td>
-                <code>[yokitabi_slider id="<?php echo $slider->id; ?>"]</code>
-                <button type="button" class="button copy-shortcode" data-shortcode='[yokitabi_slider id="<?php echo $slider->id; ?>"]'>コピー</button>
+                <code>[custom_slider id="<?php echo $slider->id; ?>"]</code>
+                <button type="button" class="button copy-shortcode" data-shortcode='[custom_slider id="<?php echo $slider->id; ?>"]'>コピー</button>
               </td>
               <td><?php echo date('Y-m-d H:i', strtotime($slider->created_at)); ?></td>
               <td>
-                <a href="<?php echo admin_url('admin.php?page=yokitabi-slider-edit&slider_id=' . $slider->id); ?>" class="button">編集</a>
-                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=yokitabi-slider-manager&action=duplicate_slider&slider_id=' . $slider->id), 'duplicate_slider_' . $slider->id); ?>" 
+                <a href="<?php echo admin_url('admin.php?page=custom-slider-edit&slider_id=' . $slider->id); ?>" class="button">編集</a>
+                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=custom-slider-manager&action=duplicate_slider&slider_id=' . $slider->id), 'duplicate_slider_' . $slider->id); ?>" 
                    class="button">複製</a>
-                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=yokitabi-slider-manager&action=delete_slider&slider_id=' . $slider->id), 'delete_slider_' . $slider->id); ?>"
+                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=custom-slider-manager&action=delete_slider&slider_id=' . $slider->id), 'delete_slider_' . $slider->id); ?>"
                   class="button button-link-delete"
                   onclick="return confirm('このスライダーを削除しますか？関連するスライドも全て削除されます。')">削除</a>
               </td>

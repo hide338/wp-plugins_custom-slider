@@ -1,5 +1,5 @@
 /**
- * Yokitabi カスタムスライダー 管理画面JavaScript
+ * Advanced Custom Slider 管理画面JavaScript
  */
 
 (function ($) {
@@ -104,12 +104,12 @@
 
     // AJAXでサーバーに送信
     $.ajax({
-      url: yokitabi_admin_ajax.ajaxurl,
+      url: custom_admin_ajax.ajaxurl,
       type: "POST",
       data: {
         action: "update_slide_order",
         slides: slideIds,
-        nonce: yokitabi_admin_ajax.nonce,
+        nonce: custom_admin_ajax.nonce,
       },
       success: function (response) {
         if (response.success) {

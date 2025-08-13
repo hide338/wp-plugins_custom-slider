@@ -1,5 +1,5 @@
 /**
- * Yokitabi カスタムスライダー JavaScript
+ * Advanced Custom Slider JavaScript
  */
 
 (function ($) {
@@ -153,18 +153,18 @@
     // Swiper初期化
     const swiper = new Swiper(sliderElement, swiperConfig);
 
-    console.log("Yokitabi Slider initialized:", sliderElement.id);
+    console.log("Custom Slider initialized:", sliderElement.id);
     return swiper;
   }
 
   // DOMが読み込まれた後に実行
   $(document).ready(function () {
     const sliderWrappers = document.querySelectorAll(
-      ".yokitabi-slider-wrapper"
+      ".custom-slider-wrapper"
     );
 
     sliderWrappers.forEach(function (wrapper) {
-      const slider = wrapper.querySelector(".yokitabi-slider");
+      const slider = wrapper.querySelector(".custom-slider");
       if (!slider) return;
 
       const delayStart = wrapper.dataset.delayStart === "true";
@@ -190,7 +190,7 @@
   });
 
   // 動的に追加されたスライダーにも対応
-  $(document).on("yokitabi-slider-init", function (event, slider) {
+  $(document).on("custom-slider-init", function (event, slider) {
     if (slider && !slider.swiper) {
       initializeSlider(slider);
     }

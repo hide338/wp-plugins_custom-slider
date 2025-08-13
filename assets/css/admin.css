@@ -1,8 +1,8 @@
 /**
- * Yokitabi カスタムスライダー 管理画面CSS
+ * Advanced Custom Slider 管理画面CSS
  */
 
-.yokitabi-admin-card {
+.custom-admin-card {
   position: relative;
   margin-top: 20px;
   padding: 20px;
@@ -13,7 +13,7 @@
   box-sizing: border-box;
 }
 
-.yokitabi-admin-card h2 {
+.custom-admin-card h2 {
   margin-top: 0;
   margin-bottom: 15px;
   font-size: 1.3em;
@@ -105,16 +105,16 @@ code {
 }
 
 /* フォームスタイルの調整 */
-.yokitabi-admin-card .form-table input[type="text"],
-.yokitabi-admin-card .form-table input[type="url"],
-.yokitabi-admin-card .form-table input[type="number"],
-.yokitabi-admin-card .form-table textarea,
-.yokitabi-admin-card .form-table select {
+.custom-admin-card .form-table input[type="text"],
+.custom-admin-card .form-table input[type="url"],
+.custom-admin-card .form-table input[type="number"],
+.custom-admin-card .form-table textarea,
+.custom-admin-card .form-table select {
   width: 100%;
   max-width: none;
 }
 
-.yokitabi-admin-card .form-table th {
+.custom-admin-card .form-table th {
   width: 200px;
 }
 
@@ -150,13 +150,13 @@ code {
     align-self: center;
   }
 
-  .yokitabi-admin-card .form-table th {
+  .custom-admin-card .form-table th {
     width: auto;
     display: block;
     padding-bottom: 5px;
   }
 
-  .yokitabi-admin-card .form-table td {
+  .custom-admin-card .form-table td {
     display: block;
     padding-top: 0;
   }
